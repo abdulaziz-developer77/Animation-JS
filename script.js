@@ -1,10 +1,8 @@
 console.clear();
 
-/* selector functions */
 const $ = (s, o = document) => o.querySelector(s);
 const $$ = (s, o = document) => o.querySelectorAll(s);
 
-/* store references to all of the elements we'll need */
 const inputs = $$('input[type="radio"]');
 const horn1 = $('#horn-1'), horn2 = $('#horn-2'), horn3 = $('#horn-3'), horn4 = $('#horn-4'), horn5 = $('#horn-5');
 const earL = $('#ear-l'), earR = $('#ear-r'), earring = $('#earring');
@@ -13,7 +11,6 @@ const eyePaths = $$('.eye-path'), mouthPaths = $$('.mouth-path');
 const chin = $('#chin'), tongue = $('#tongue'), toothTop = $('#tooth-top'), toothBot = $('#tooth-bot');
 const avatar = $('#avatar');
 
-/* path data for shape morphing */
 const eye0 = "M175.4,75.3c-12,0-23.4-0.9-33.7-2.5c-4.2,6.4-6.7,14-6.7,22.2c0,12.4,5.7,23.5,14.6,30.9c6.9,5.7,15.8,9.1,25.4,9.1c9.7,0,18.5-3.4,25.4-9.1c8.9-7.3,14.6-18.4,14.6-30.9c0-8.2-2.5-15.8-6.7-22.1C198.3,74.5,187.1,75.3,175.4,75.3z";
 const eye1 = "M213.3,82.3c-9.7,4-23.1,6.5-37.9,6.5s-28.2-2.5-37.9-6.5c-1.3,4-2.1,8.3-2.1,12.8c0,11,4.4,20.9,11.6,28.1c8.2-1.8,18-2.9,28.4-2.9s20.2,1.1,28.4,2.9c7.2-7.2,11.6-17.2,11.6-28.1C215.4,90.6,214.6,86.3,213.3,82.3z";
 const eye2 = "M215.4,95.1c0-7.4-2-14.3-5.5-20.3c-9.3,2.5-21.3,4-34.5,4s-25.1-1.5-34.5-4c-3.5,6-5.5,12.9-5.5,20.3c0,13.1,6.3,24.7,16,32c7.2-1.1,15.4-1.7,24-1.7s16.8,0.6,24,1.7C209.1,119.8,215.4,108.2,215.4,95.1z";
@@ -27,7 +24,6 @@ const mouth3 = "M175,179.8c2,0,4-0.1,6-0.2c11-0.9,22-4.1,32.9-9.7c0.1,0,0.2-0.1,
 const mouth4 = "M174.8,172.6h10H200l0,4.9c0,1.4-0.2,2.7-0.6,4c-1.8,5.9-7.5,10.1-14.3,10.1h-10.4h-9.9c-6.7,0-12.3-4.2-14.2-9.9c-0.4-1.3-0.7-2.7-0.7-4.2v-4.9h14.3H174.8z";
 const mouth5 = "M175,165.6h4.8l23.3,0c5.6,0,8.9,4.7,8.9,8.9c0,3-0.4,6-1.2,8.7c-3.8,14-16.7,24.3-31.9,24.3H175h-3.9c-15.5,0-28.6-10.7-32.1-25.2c-0.6-2.5-0.9-5.2-0.9-7.9c0-5,4.1-8.9,8.9-8.9l23.9,0H175z";
 
-/* vars */
 let curRating = 0;
 let tl;
 let durReduced = 0, durNoPref = .5, dur;
@@ -36,25 +32,18 @@ const horns = [horn1,horn2,horn3,horn4,horn5];
 let hornsU = [], hornsD = horns;
 let mq;
 
-
-
-// set up matchMedia instance to detect the reduced motion media query
 mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-// safari doesn't support 'matchMedia.addEventListener' so we have to check support for that and add the legacy 'addListener' if not.
 if(mq.addEventListener) {
 	mq.addEventListener('change', onReduceMotionMQ);
 } else {
 	mq.addListener(onReduceMotionMQ);
 }
-// manually check media query initially
 onReduceMotionMQ();
 
 
 
-// activate any gsap plugins
 gsap.registerPlugin(MorphSVGPlugin);
 
-// set initial visual properties of avatar
 gsap.set(earL, 		{transformOrigin: "40px 40px", rotate: "-15deg", y: 10, scale: .9});
 gsap.set(earR, 		{transformOrigin: "40px 40px", rotate: "15deg", y: 10, scale: .9});
 gsap.set(earring, 		{transformOrigin: "50% 0", x: -12, y: 8});
@@ -71,24 +60,19 @@ gsap.set(avatar, 		{opacity: 1});
 
 
 
-/* add click handler to inputs */
 inputs.forEach(function(i) {
 	i.addEventListener("click", onRatingClick);
 });
 
 function onRatingClick(e) {
-	// determine which rating was clicked
 	let num = parseInt(e.target.getAttribute('data-num'));
 	
-	// crate new timeline
 	tl = gsap.timeline({paused: true, defaults:{duration: dur, ease: "sine.out"}});
 	
-	// determine which horns go up/down
 	hornsU = horns.slice(0,num);
 	if(hornsU.length > curRating) {hornsU = hornsU.slice(curRating);}
 	hornsD = horns.slice(num,curRating);
 	
-	// set props based on which rating was clicked on
 	switch (num) {
 		case 0:
 			eyeTarg = eye0;
@@ -178,7 +162,6 @@ function onRatingClick(e) {
 
 
 function onReduceMotionMQ() {
-	// change animation time depending on user preference
 	if(mq.matches) {
 		dur = durReduced;
 	} else {
